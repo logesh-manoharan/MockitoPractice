@@ -7,4 +7,6 @@ public interface ExternalService {
 
     public List<String> getBoardGames();
 
+    public void deleteBoardGame(String boardGame);
+
 }
