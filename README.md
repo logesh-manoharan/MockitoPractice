@@ -192,19 +192,79 @@ How can we test the Mock the static, private, constructors ?
 	It has specific formats to be followed.
 	
 	
-1.It needs separate Runner.
-	@RunWith(PowerMockRunner.class)
+PowerMockito Setup:
 	
-2.Initialize the class which has static method.
-	
-	@PrepareForTest(StaticClass.class)
-	class SampleTest {
-	
-		@Test
-		public void test_sampleMethod () {
-			PowerMockito.mockStatic(StaticClass.class);
+	1.It needs separate Runner.
+		@RunWith(PowerMockRunner.class)
+		
+	2.Initialize the class which has static method.
+		
+		@PrepareForTest(StaticClass.class)
+		class SampleTest {
+		
+			@Test
+			public void test_sampleMethod () {
+				PowerMockito.mockStatic(StaticClass.class);
+			}
 		}
-	}
 
-3.Mock the method:
-	when(StaticClass.add(2, 3)).thenReturn(5);
+	3.Mock the method:
+		when(StaticClass.add(2, 3)).thenReturn(5);
+			
+		
+
+How to verify the static method is called or not ?
+
+	PowerMockito.verifyStatic();
+	StaticClass.add(2, 3);
+
+
+How to Mock private method ?
+	
+	@Test
+	public void test_sampleImpl() throws Exception {
+		int sum = Whitebox.invokeMethod(sampleImpl, "add");
+	}
+	
+How to mock constructor ?
+	class SampleImpl {
+		public int methodUsingAnArrayListConstructor() {
+			ArrayList list = new ArrayList();
+			
+			return list.size();
+		}
+		
+	}
+	
+
+	@RunWith(PowerMockito.class)
+	public class SampleTest {
+	
+		@Mock
+		public SampleImpl sampleImpl;
+	
+		@Mock
+		public ArrayList mockedArrayList;
+		
+		@Test
+		public void test_SampleMethod {
+		
+			when(mockedArrayList.size()).thenReturn(10);
+			
+			PowerMockito.whenNew(ArrayList.class).withAnyArguments().thenReturn(mockedArrayList);
+			
+			// this will always returns 10. Because, while initialising ArrayList in the method it will use the Mocked ArrayList.
+			sampleImpl.methodUsingAnArrayListConstructor();      
+		}
+		
+	}
+	
+Note:
+	It is not a good programming practice.
+	If we are having a legacy project that needs this above 3 things we can do it. Unless we shouldn't go with this approaches.
+	
+
+Good Practice in Unit test writing:	
+1.Readability
+2.Should fail only when real logic failures
+3.Distinguishing the values which is important and which is not important
